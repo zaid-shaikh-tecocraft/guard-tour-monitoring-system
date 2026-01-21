@@ -16,7 +16,6 @@ model Organization {
     guards                Guard[]
     attendancePoints      AttendancePoint[]
     patrolPoints          PatrolPoint[]
-    authentications       Authentication[]
     attendances           Attendance[]
     patrols               Patrol[]
     attendanceAssignments GuardAttendanceAssignment[]
@@ -32,7 +31,6 @@ model Machine {
     name            String?
     createdAt       DateTime         @default(now())
     organization    Organization     @relation(fields: [orgId], references: [id], onDelete: Cascade)
-    authentications Authentication[]
     attendances     Attendance[]
     patrols         Patrol[]
 }
@@ -45,7 +43,6 @@ model Guard {
     employeeId            String?
     createdAt             DateTime                    @default(now())
     organization          Organization                @relation(fields: [orgId], references: [id], onDelete: Cascade)
-    authentications       Authentication[]
     attendances           Attendance[]
     patrols               Patrol[]
     attendanceAssignments GuardAttendanceAssignment[]
@@ -80,21 +77,6 @@ model PatrolPoint {
     assignments  GuardPatrolAssignment[]
 
     @@index([orgId, rfid])
-}
-
-model Authentication {
-    id           Int          @id @default(autoincrement())
-    guardId      Int
-    machineId    Int
-    orgId        Int
-    scannedAt    DateTime
-    createdAt    DateTime     @default(now())
-    guard        Guard        @relation(fields: [guardId], references: [id], onDelete: Cascade)
-    machine      Machine      @relation(fields: [machineId], references: [id], onDelete: Cascade)
-    organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
-
-    @@index([orgId, scannedAt])
-    @@index([guardId, scannedAt])
 }
 
 model Attendance {

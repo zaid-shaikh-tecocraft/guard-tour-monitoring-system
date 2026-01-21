@@ -1,7 +1,6 @@
 const prisma = require('../config/prisma');
 
 const SCAN_TYPES = {
-    AUTHENTICATION: 'authentication',
     ATTENDANCE: 'attendance',
     PATROL: 'patrol',
     UNKNOWN: 'unknown'
@@ -30,15 +29,6 @@ async function classifyScan(orgId, lrfid, grfid) {
 
         if (!guard) {
             return { type: SCAN_TYPES.UNKNOWN, reason: 'Guard not found' };
-        }
-
-        // If lrfid is empty or not provided, it's authentication
-        if (!lrfid || lrfid.trim() === '') {
-            return {
-                type: SCAN_TYPES.AUTHENTICATION,
-                guard,
-                reason: 'No location RFID provided'
-            };
         }
 
         // Check if lrfid matches an attendance point
@@ -75,9 +65,9 @@ async function classifyScan(orgId, lrfid, grfid) {
             };
         }
 
-        // Guard found but location RFID doesn't match any point - still authentication
+        // Guard found but location RFID doesn't match any point - unknown
         return {
-            type: SCAN_TYPES.AUTHENTICATION,
+            type: SCAN_TYPES.UNKNOWN,
             guard,
             reason: 'Location RFID not found in any point table'
         };

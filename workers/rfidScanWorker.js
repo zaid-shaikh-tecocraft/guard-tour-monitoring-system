@@ -4,7 +4,6 @@ const prisma = require('../config/prisma');
 const { parseDOT } = require('../utils/rfidUtils');
 const { QUEUE_NAME } = require('../queues/rfidScanQueue');
 const { classifyScan, SCAN_TYPES } = require('../services/scanClassifier');
-const { handleAuthentication } = require('../services/authenticationHandler');
 const { handleAttendance } = require('../services/attendanceHandler');
 const { handlePatrol } = require('../services/patrolHandler');
 
@@ -17,6 +16,22 @@ function startRfidWorker() {
             for (const record of records) {
                 try {
                     const scannedAt = parseDOT(record.dot) || new Date();
+
+                    // Always store raw record in RfidRecord for auditing
+                    try {
+                        await prisma.rfidRecord.create({
+                            data: {
+                                orgId: record.orgId,
+                                machineId: record.machineId,
+                                lrfid: record.lrfid,
+                                grfid: record.grfid,
+                                dot: record.dot,
+                                dateOfTransaction: scannedAt
+                            }
+                        });
+                    } catch (logErr) {
+                        console.error(`[${QUEUE_NAME}] Failed to log raw record:`, logErr.message);
+                    }
 
                     // Classify the scan
                     const classification = await classifyScan(
@@ -34,11 +49,6 @@ function startRfidWorker() {
 
                     // Route to appropriate handler based on scan type
                     switch (classification.type) {
-                        case SCAN_TYPES.AUTHENTICATION:
-                            await handleAuthentication(scanData, classification);
-                            console.log(`[${QUEUE_NAME}] Authentication processed for guard ${classification.guard.id}`);
-                            break;
-
                         case SCAN_TYPES.ATTENDANCE:
                             await handleAttendance(scanData, classification);
                             console.log(`[${QUEUE_NAME}] Attendance processed for guard ${classification.guard.id} at point ${classification.attendancePoint.id}`);
@@ -57,17 +67,6 @@ function startRfidWorker() {
                                 lrfid: record.lrfid,
                                 grfid: record.grfid
                             });
-                            // Log unknown scans to RfidRecord for manual review
-                            await prisma.rfidRecord.create({
-                                data: {
-                                    orgId: record.orgId,
-                                    machineId: record.machineId,
-                                    lrfid: record.lrfid,
-                                    grfid: record.grfid,
-                                    dot: record.dot,
-                                    dateOfTransaction: scannedAt
-                                }
-                            });
                             break;
                     }
                 } catch (error) {
@@ -77,22 +76,6 @@ function startRfidWorker() {
                         lrfid: record.lrfid,
                         grfid: record.grfid
                     });
-
-                    // Log failed scans to RfidRecord for manual review
-                    try {
-                        await prisma.rfidRecord.create({
-                            data: {
-                                orgId: record.orgId,
-                                machineId: record.machineId,
-                                lrfid: record.lrfid,
-                                grfid: record.grfid,
-                                dot: record.dot,
-                                dateOfTransaction: parseDOT(record.dot)
-                            }
-                        });
-                    } catch (logError) {
-                        console.error(`[${QUEUE_NAME}] Failed to log error record:`, logError.message);
-                    }
                 }
             }
         },
