@@ -1,0 +1,38 @@
+<%- include('../partials/header') %>
+<div class="card">
+    <div class="card-header">
+        <h2><%= patrolPoint ? 'Edit' : 'New' %> Patrol Point</h2>
+        <a href="/patrol-points" class="btn btn-secondary">Back</a>
+    </div>
+    <% if (typeof error !== 'undefined' && error) { -%>
+    <div class="error"><%= error %></div>
+    <% } -%>
+    <form method="POST" action="<%= patrolPoint ? '/patrol-points/' + patrolPoint.id : '/patrol-points' %>">
+        <div class="form-group">
+            <label for="rfid">RFID *</label>
+            <input type="text" id="rfid" name="rfid" value="<%= patrolPoint ? patrolPoint.rfid : '' %>" required>
+        </div>
+        <div class="form-group">
+            <label for="name">Name *</label>
+            <input type="text" id="name" name="name" value="<%= patrolPoint ? patrolPoint.name : '' %>" required>
+        </div>
+        <div class="form-group">
+            <label for="location">Location</label>
+            <input type="text" id="location" name="location" value="<%= patrolPoint ? patrolPoint.location || '' : '' %>">
+        </div>
+        <div class="form-group">
+            <label for="orgId">Organization *</label>
+            <select id="orgId" name="orgId" required>
+                <option value="">Select Organization</option>
+                <% organizations.forEach(org => { -%>
+                <option value="<%= org.id %>" <%= patrolPoint && patrolPoint.orgId === org.id ? 'selected' : '' %>><%= org.name %></option>
+                <% }); -%>
+            </select>
+        </div>
+        <div class="actions">
+            <button type="submit" class="btn btn-success"><%= patrolPoint ? 'Update' : 'Create' %> Patrol Point</button>
+            <a href="/patrol-points" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+<%- include('../partials/footer') %>

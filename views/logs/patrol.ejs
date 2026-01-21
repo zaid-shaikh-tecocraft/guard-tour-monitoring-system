@@ -1,0 +1,100 @@
+<%- include('../partials/header') %>
+<div class="card">
+    <div class="card-header">
+        <h2>Patrol Logs</h2>
+    </div>
+    
+    <!-- Filters -->
+    <form method="GET" action="/logs/patrol" style="margin-bottom: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 4px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="orgId">Organization</label>
+                <select id="orgId" name="orgId">
+                    <option value="">All Organizations</option>
+                    <% organizations.forEach(org => { -%>
+                    <option value="<%= org.id %>" <%= filters.orgId == org.id ? 'selected' : '' %>><%= org.name %></option>
+                    <% }); -%>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="guardId">Guard</label>
+                <select id="guardId" name="guardId">
+                    <option value="">All Guards</option>
+                    <% guards.forEach(guard => { -%>
+                    <option value="<%= guard.id %>" <%= filters.guardId == guard.id ? 'selected' : '' %>><%= guard.name %></option>
+                    <% }); -%>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="patrolPointId">Patrol Point</label>
+                <select id="patrolPointId" name="patrolPointId">
+                    <option value="">All Points</option>
+                    <% patrolPoints.forEach(point => { -%>
+                    <option value="<%= point.id %>" <%= filters.patrolPointId == point.id ? 'selected' : '' %>><%= point.name %></option>
+                    <% }); -%>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="date">Date</label>
+                <input type="date" id="date" name="date" value="<%= filters.date %>">
+            </div>
+        </div>
+        <div style="margin-top: 1rem;">
+            <button type="submit" class="btn">Filter</button>
+            <a href="/logs/patrol" class="btn btn-secondary">Clear</a>
+        </div>
+    </form>
+
+    <div style="margin-bottom: 1rem; color: #666;">
+        Showing <%= patrols.length %> of <%= total %> records (Page <%= page %> of <%= totalPages %>)
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Guard</th>
+                <th>RFID</th>
+                <th>Patrol Point</th>
+                <th>Point RFID</th>
+                <th>Machine</th>
+                <th>Organization</th>
+                <th>Scanned At</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (patrols.length === 0) { -%>
+            <tr>
+                <td colspan="8" style="text-align: center; padding: 2rem;">No patrol records found.</td>
+            </tr>
+            <% } else { -%>
+            <% patrols.forEach(patrol => { -%>
+            <tr>
+                <td><%= patrol.id %></td>
+                <td><%= patrol.guard.name %></td>
+                <td><%= patrol.guard.rfid %></td>
+                <td><%= patrol.patrolPoint.name %></td>
+                <td><%= patrol.patrolPoint.rfid %></td>
+                <td><%= patrol.machine.machineId %><%= patrol.machine.name ? ' (' + patrol.machine.name + ')' : '' %></td>
+                <td><%= patrol.organization.name %></td>
+                <td><%= new Date(patrol.scannedAt).toLocaleString() %></td>
+            </tr>
+            <% }); -%>
+            <% } -%>
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <% if (totalPages > 1) { -%>
+    <div style="margin-top: 1.5rem; display: flex; justify-content: center; gap: 0.5rem; align-items: center;">
+        <% if (page > 1) { -%>
+        <a href="?page=<%= page - 1 %><%= filters.orgId ? '&orgId=' + filters.orgId : '' %><%= filters.guardId ? '&guardId=' + filters.guardId : '' %><%= filters.patrolPointId ? '&patrolPointId=' + filters.patrolPointId : '' %><%= filters.date ? '&date=' + filters.date : '' %>" class="btn btn-secondary">Previous</a>
+        <% } -%>
+        <span>Page <%= page %> of <%= totalPages %></span>
+        <% if (page < totalPages) { -%>
+        <a href="?page=<%= page + 1 %><%= filters.orgId ? '&orgId=' + filters.orgId : '' %><%= filters.guardId ? '&guardId=' + filters.guardId : '' %><%= filters.patrolPointId ? '&patrolPointId=' + filters.patrolPointId : '' %><%= filters.date ? '&date=' + filters.date : '' %>" class="btn btn-secondary">Next</a>
+        <% } -%>
+    </div>
+    <% } -%>
+</div>
+<%- include('../partials/footer') %>

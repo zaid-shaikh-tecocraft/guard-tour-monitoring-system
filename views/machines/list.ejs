@@ -1,0 +1,46 @@
+<%- include('../partials/header') %>
+<div class="card">
+    <div class="card-header">
+        <h2>Machines</h2>
+        <a href="/machines/new" class="btn btn-success">Add New</a>
+    </div>
+    <% if (typeof error !== 'undefined' && error) { -%>
+    <div class="error"><%= error %></div>
+    <% } -%>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Machine ID</th>
+                <th>Name</th>
+                <th>Organization</th>
+                <th>Created At</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (machines.length === 0) { -%>
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 2rem;">No machines found. <a href="/machines/new">Create one</a></td>
+            </tr>
+            <% } else { -%>
+            <% machines.forEach(machine => { -%>
+            <tr>
+                <td><%= machine.id %></td>
+                <td><%= machine.machineId %></td>
+                <td><%= machine.name || '-' %></td>
+                <td><%= machine.organization.name %></td>
+                <td><%= new Date(machine.createdAt).toLocaleDateString() %></td>
+                <td class="actions">
+                    <a href="/machines/<%= machine.id %>/edit" class="btn btn-secondary">Edit</a>
+                    <form action="/machines/<%= machine.id %>/delete" method="POST" style="display: inline;">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            <% }); -%>
+            <% } -%>
+        </tbody>
+    </table>
+</div>
+<%- include('../partials/footer') %>

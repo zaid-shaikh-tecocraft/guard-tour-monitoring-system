@@ -1,0 +1,38 @@
+<%- include('../partials/header') %>
+<div class="card">
+    <div class="card-header">
+        <h2><%= guard ? 'Edit' : 'New' %> Guard</h2>
+        <a href="/guards" class="btn btn-secondary">Back</a>
+    </div>
+    <% if (typeof error !== 'undefined' && error) { -%>
+    <div class="error"><%= error %></div>
+    <% } -%>
+    <form method="POST" action="<%= guard ? '/guards/' + guard.id : '/guards' %>">
+        <div class="form-group">
+            <label for="rfid">RFID *</label>
+            <input type="text" id="rfid" name="rfid" value="<%= guard ? guard.rfid : '' %>" required>
+        </div>
+        <div class="form-group">
+            <label for="name">Name *</label>
+            <input type="text" id="name" name="name" value="<%= guard ? guard.name : '' %>" required>
+        </div>
+        <div class="form-group">
+            <label for="employeeId">Employee ID</label>
+            <input type="text" id="employeeId" name="employeeId" value="<%= guard ? guard.employeeId || '' : '' %>">
+        </div>
+        <div class="form-group">
+            <label for="orgId">Organization *</label>
+            <select id="orgId" name="orgId" required>
+                <option value="">Select Organization</option>
+                <% organizations.forEach(org => { -%>
+                <option value="<%= org.id %>" <%= guard && guard.orgId === org.id ? 'selected' : '' %>><%= org.name %></option>
+                <% }); -%>
+            </select>
+        </div>
+        <div class="actions">
+            <button type="submit" class="btn btn-success"><%= guard ? 'Update' : 'Create' %> Guard</button>
+            <a href="/guards" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+<%- include('../partials/footer') %>

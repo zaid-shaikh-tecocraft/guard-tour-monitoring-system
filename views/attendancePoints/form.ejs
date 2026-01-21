@@ -1,0 +1,38 @@
+<%- include('../partials/header') %>
+<div class="card">
+    <div class="card-header">
+        <h2><%= attendancePoint ? 'Edit' : 'New' %> Attendance Point</h2>
+        <a href="/attendance-points" class="btn btn-secondary">Back</a>
+    </div>
+    <% if (typeof error !== 'undefined' && error) { -%>
+    <div class="error"><%= error %></div>
+    <% } -%>
+    <form method="POST" action="<%= attendancePoint ? '/attendance-points/' + attendancePoint.id : '/attendance-points' %>">
+        <div class="form-group">
+            <label for="rfid">RFID *</label>
+            <input type="text" id="rfid" name="rfid" value="<%= attendancePoint ? attendancePoint.rfid : '' %>" required>
+        </div>
+        <div class="form-group">
+            <label for="name">Name *</label>
+            <input type="text" id="name" name="name" value="<%= attendancePoint ? attendancePoint.name : '' %>" required>
+        </div>
+        <div class="form-group">
+            <label for="location">Location</label>
+            <input type="text" id="location" name="location" value="<%= attendancePoint ? attendancePoint.location || '' : '' %>">
+        </div>
+        <div class="form-group">
+            <label for="orgId">Organization *</label>
+            <select id="orgId" name="orgId" required>
+                <option value="">Select Organization</option>
+                <% organizations.forEach(org => { -%>
+                <option value="<%= org.id %>" <%= attendancePoint && attendancePoint.orgId === org.id ? 'selected' : '' %>><%= org.name %></option>
+                <% }); -%>
+            </select>
+        </div>
+        <div class="actions">
+            <button type="submit" class="btn btn-success"><%= attendancePoint ? 'Update' : 'Create' %> Attendance Point</button>
+            <a href="/attendance-points" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+<%- include('../partials/footer') %>

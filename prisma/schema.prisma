@@ -1,0 +1,182 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+model Organization {
+    id              Int       @id @default(autoincrement())
+    name            String
+    createdAt       DateTime  @default(now())
+    machines        Machine[]
+    guards          Guard[]
+    attendancePoints AttendancePoint[]
+    patrolPoints    PatrolPoint[]
+    authentications Authentication[]
+    attendances     Attendance[]
+    patrols         Patrol[]
+    attendanceAssignments GuardAttendanceAssignment[]
+    patrolAssignments GuardPatrolAssignment[]
+}
+
+model Machine {
+    id              Int       @id @default(autoincrement())
+    machineId       String    @unique
+    orgId           Int
+    name            String?
+    createdAt       DateTime  @default(now())
+    organization    Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+    authentications Authentication[]
+    attendances     Attendance[]
+    patrols         Patrol[]
+}
+
+model Guard {
+    id              Int       @id @default(autoincrement())
+    rfid            String    @unique
+    orgId           Int
+    name            String
+    employeeId      String?
+    createdAt       DateTime  @default(now())
+    organization    Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+    authentications Authentication[]
+    attendances     Attendance[]
+    patrols         Patrol[]
+    attendanceAssignments GuardAttendanceAssignment[]
+    patrolAssignments GuardPatrolAssignment[]
+
+    @@index([orgId, rfid])
+}
+
+model AttendancePoint {
+    id          Int         @id @default(autoincrement())
+    rfid        String      @unique
+    orgId       Int
+    name        String
+    location    String?
+    createdAt   DateTime    @default(now())
+    organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+    attendances Attendance[]
+    assignments GuardAttendanceAssignment[]
+
+    @@index([orgId, rfid])
+}
+
+model PatrolPoint {
+    id          Int         @id @default(autoincrement())
+    rfid        String      @unique
+    orgId       Int
+    name        String
+    location    String?
+    createdAt   DateTime    @default(now())
+    organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+    patrols     Patrol[]
+    assignments GuardPatrolAssignment[]
+
+    @@index([orgId, rfid])
+}
+
+model Authentication {
+    id          Int       @id @default(autoincrement())
+    guardId     Int
+    machineId   Int
+    orgId       Int
+    scannedAt   DateTime
+    createdAt   DateTime  @default(now())
+    guard       Guard     @relation(fields: [guardId], references: [id], onDelete: Cascade)
+    machine     Machine   @relation(fields: [machineId], references: [id], onDelete: Cascade)
+    organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+    @@index([orgId, scannedAt])
+    @@index([guardId, scannedAt])
+}
+
+model Attendance {
+    id                Int             @id @default(autoincrement())
+    guardId           Int
+    attendancePointId Int
+    machineId         Int
+    orgId             Int
+    scannedAt         DateTime
+    createdAt         DateTime        @default(now())
+    guard             Guard           @relation(fields: [guardId], references: [id], onDelete: Cascade)
+    attendancePoint   AttendancePoint @relation(fields: [attendancePointId], references: [id], onDelete: Cascade)
+    machine           Machine         @relation(fields: [machineId], references: [id], onDelete: Cascade)
+    organization      Organization    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+    @@index([orgId, scannedAt])
+    @@index([guardId, scannedAt])
+    @@index([attendancePointId, scannedAt])
+}
+
+model Patrol {
+    id          Int         @id @default(autoincrement())
+    guardId     Int
+    patrolPointId Int
+    machineId   Int
+    orgId       Int
+    scannedAt   DateTime
+    createdAt   DateTime    @default(now())
+    guard       Guard       @relation(fields: [guardId], references: [id], onDelete: Cascade)
+    patrolPoint PatrolPoint @relation(fields: [patrolPointId], references: [id], onDelete: Cascade)
+    machine     Machine     @relation(fields: [machineId], references: [id], onDelete: Cascade)
+    organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+    @@index([orgId, scannedAt])
+    @@index([guardId, scannedAt])
+    @@index([patrolPointId, scannedAt])
+}
+
+model GuardAttendanceAssignment {
+    id                Int             @id @default(autoincrement())
+    guardId           Int
+    attendancePointId Int
+    orgId             Int
+    isActive          Boolean         @default(true)
+    startDate         DateTime?
+    endDate           DateTime?
+    createdAt         DateTime        @default(now())
+    updatedAt         DateTime        @updatedAt
+    guard             Guard           @relation(fields: [guardId], references: [id], onDelete: Cascade)
+    attendancePoint   AttendancePoint @relation(fields: [attendancePointId], references: [id], onDelete: Cascade)
+    organization      Organization    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+    @@unique([guardId, attendancePointId])
+    @@index([orgId, isActive])
+    @@index([guardId, isActive])
+    @@index([attendancePointId, isActive])
+}
+
+model GuardPatrolAssignment {
+    id                Int             @id @default(autoincrement())
+    guardId           Int
+    patrolPointId     Int
+    orgId             Int
+    isActive          Boolean         @default(true)
+    startDate         DateTime?
+    endDate           DateTime?
+    createdAt         DateTime        @default(now())
+    updatedAt         DateTime        @updatedAt
+    guard             Guard           @relation(fields: [guardId], references: [id], onDelete: Cascade)
+    patrolPoint       PatrolPoint     @relation(fields: [patrolPointId], references: [id], onDelete: Cascade)
+    organization      Organization    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+    @@unique([guardId, patrolPointId])
+    @@index([orgId, isActive])
+    @@index([guardId, isActive])
+    @@index([patrolPointId, isActive])
+}
+
+model RfidRecord {
+    id                Int       @id @default(autoincrement())
+    orgId             String
+    machineId         String
+    lrfid             String
+    grfid             String
+    dot               String
+    dateOfTransaction DateTime?
+    createdAt         DateTime  @default(now())
+}

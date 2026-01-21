@@ -1,0 +1,34 @@
+<%- include('../partials/header') %>
+<div class="card">
+    <div class="card-header">
+        <h2><%= machine ? 'Edit' : 'New' %> Machine</h2>
+        <a href="/machines" class="btn btn-secondary">Back</a>
+    </div>
+    <% if (typeof error !== 'undefined' && error) { -%>
+    <div class="error"><%= error %></div>
+    <% } -%>
+    <form method="POST" action="<%= machine ? '/machines/' + machine.id : '/machines' %>">
+        <div class="form-group">
+            <label for="machineId">Machine ID *</label>
+            <input type="text" id="machineId" name="machineId" value="<%= machine ? machine.machineId : '' %>" required>
+        </div>
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" value="<%= machine ? machine.name || '' : '' %>">
+        </div>
+        <div class="form-group">
+            <label for="orgId">Organization *</label>
+            <select id="orgId" name="orgId" required>
+                <option value="">Select Organization</option>
+                <% organizations.forEach(org => { -%>
+                <option value="<%= org.id %>" <%= machine && machine.orgId === org.id ? 'selected' : '' %>><%= org.name %></option>
+                <% }); -%>
+            </select>
+        </div>
+        <div class="actions">
+            <button type="submit" class="btn btn-success"><%= machine ? 'Update' : 'Create' %> Machine</button>
+            <a href="/machines" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+<%- include('../partials/footer') %>

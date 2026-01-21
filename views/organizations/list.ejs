@@ -1,0 +1,42 @@
+<%- include('../partials/header') %>
+<div class="card">
+    <div class="card-header">
+        <h2>Organizations</h2>
+        <a href="/organizations/new" class="btn btn-success">Add New</a>
+    </div>
+    <% if (typeof error !== 'undefined' && error) { -%>
+    <div class="error"><%= error %></div>
+    <% } -%>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Created At</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (organizations.length === 0) { -%>
+            <tr>
+                <td colspan="4" style="text-align: center; padding: 2rem;">No organizations found. <a href="/organizations/new">Create one</a></td>
+            </tr>
+            <% } else { -%>
+            <% organizations.forEach(org => { -%>
+            <tr>
+                <td><%= org.id %></td>
+                <td><%= org.name %></td>
+                <td><%= new Date(org.createdAt).toLocaleDateString() %></td>
+                <td class="actions">
+                    <a href="/organizations/<%= org.id %>/edit" class="btn btn-secondary">Edit</a>
+                    <form action="/organizations/<%= org.id %>/delete" method="POST" style="display: inline;">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            <% }); -%>
+            <% } -%>
+        </tbody>
+    </table>
+</div>
+<%- include('../partials/footer') %>
