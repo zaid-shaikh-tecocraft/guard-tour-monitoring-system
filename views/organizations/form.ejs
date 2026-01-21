@@ -9,6 +9,11 @@
     <% } -%>
     <form method="POST" action="<%= organization ? '/organizations/' + organization.id : '/organizations' %>">
         <div class="form-group">
+            <label for="orgId">Organization ID *</label>
+            <input type="text" id="orgId" name="orgId" value="<%= organization ? organization.orgId : '' %>" required>
+            <small style="color: #666; font-size: 0.9rem;">Unique identifier for the organization (used in RFID scans)</small>
+        </div>
+        <div class="form-group">
             <label for="name">Name *</label>
             <input type="text" id="name" name="name" value="<%= organization ? organization.name : '' %>" required>
         </div>

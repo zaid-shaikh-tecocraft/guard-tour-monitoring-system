@@ -4,8 +4,16 @@ async function handleAttendance(scanData, classification) {
     const { orgId, machineId, scannedAt } = scanData;
     const { guard, attendancePoint } = classification;
 
-    // Convert orgId string to number
-    const orgIdNum = parseInt(orgId, 10);
+    // Look up organization by custom orgId (string)
+    const organization = await prisma.organization.findUnique({
+        where: { orgId: orgId }
+    });
+
+    if (!organization) {
+        throw new Error(`Organization with orgId ${orgId} not found`);
+    }
+
+    const orgIdNum = organization.id;
 
     // Find or get machine
     let machine = await prisma.machine.findUnique({

@@ -9,11 +9,16 @@ const SCAN_TYPES = {
 
 async function classifyScan(orgId, lrfid, grfid) {
     try {
-        // Convert orgId string to number if needed
-        const orgIdNum = parseInt(orgId, 10);
-        if (isNaN(orgIdNum)) {
-            return { type: SCAN_TYPES.UNKNOWN, reason: 'Invalid orgId' };
+        // Look up organization by custom orgId (string)
+        const organization = await prisma.organization.findUnique({
+            where: { orgId: orgId }
+        });
+
+        if (!organization) {
+            return { type: SCAN_TYPES.UNKNOWN, reason: 'Organization not found' };
         }
+
+        const orgIdNum = organization.id;
 
         // Look up guard by grfid and orgId
         const guard = await prisma.guard.findFirst({

@@ -11,6 +11,7 @@
         <thead>
             <tr>
                 <th>ID</th>
+                <th>Organization ID</th>
                 <th>Name</th>
                 <th>Created At</th>
                 <th>Actions</th>
@@ -19,12 +20,13 @@
         <tbody>
             <% if (organizations.length === 0) { -%>
             <tr>
-                <td colspan="4" style="text-align: center; padding: 2rem;">No organizations found. <a href="/organizations/new">Create one</a></td>
+                <td colspan="5" style="text-align: center; padding: 2rem;">No organizations found. <a href="/organizations/new">Create one</a></td>
             </tr>
             <% } else { -%>
             <% organizations.forEach(org => { -%>
             <tr>
                 <td><%= org.id %></td>
+                <td><strong><%= org.orgId %></strong></td>
                 <td><%= org.name %></td>
                 <td><%= new Date(org.createdAt).toLocaleDateString() %></td>
                 <td class="actions">

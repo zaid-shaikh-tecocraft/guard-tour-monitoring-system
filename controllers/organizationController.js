@@ -19,6 +19,7 @@ async function create(req, res) {
     try {
         await prisma.organization.create({
             data: {
+                orgId: req.body.orgId,
                 name: req.body.name
             }
         });
@@ -47,6 +48,7 @@ async function update(req, res) {
         await prisma.organization.update({
             where: { id: parseInt(req.params.id) },
             data: {
+                orgId: req.body.orgId,
                 name: req.body.name
             }
         });
